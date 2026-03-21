@@ -1,0 +1,103 @@
+@model DeveloperViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewBag.Title      = Model.Developer?.Name ?? "Developer";
+    ViewBag.ActivePage = "";
+    ViewBag.UserName   = Model.UserName;
+    ViewBag.UserRole   = Model.UserRole;
+    ViewBag.Initials   = Model.Initials;
+}
+
+<div class="page-body">
+
+    <a href="/dashboard/overview" class="back-link">← Overview</a>
+
+    @if (Model.Error != null)
+    {
+        <div class="api-error">⚠ @Model.Error</div>
+    }
+
+    @if (Model.Developer is { } dev)
+    {
+        <!-- Developer header -->
+        <div class="dev-header">
+            <div class="av-lg">@dev.Initials</div>
+            <div>
+                <h1>@dev.Name</h1>
+                <p class="topbar-sub">
+                    Last active @(dev.LastActivityAt?.ToString("HH:mm") ?? "—")
+                </p>
+            </div>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Tasks</div>
+                <div class="stat-value">@dev.TotalTasks</div>
+            </div>
+            <div class="stat-card mc-green">
+                <div class="stat-label">Done Today</div>
+                <div class="stat-value c-green">@dev.CompletedToday</div>
+            </div>
+            <div class="stat-card mc-purple">
+                <div class="stat-label">In Progress</div>
+                <div class="stat-value c-purple">@dev.InProgress</div>
+            </div>
+            <div class="stat-card mc-orange">
+                <div class="stat-label">Hours Today</div>
+                <div class="stat-value c-orange">@dev.TotalHoursToday h</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Pending</div>
+                <div class="stat-value c-muted">@dev.Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Duration</div>
+                <div class="stat-value c-muted">@dev.AverageTaskDuration min</div>
+            </div>
+        </div>
+    }
+
+    <!-- Timeline -->
+    <span class="section-label">Today's timeline</span>
+
+    @if (Model.Timeline?.Entries is { Count: > 0 } entries)
+    {
+        <div class="timeline">
+            @for (int i = 0; i < entries.Count; i++)
+            {
+                var e    = entries[i];
+                var last = (i == entries.Count - 1);
+                var dot  = $"tl-dot tl-dot-{e.StatusClass}";
+                var badge= $"badge badge-{e.StatusClass}";
+                <div class="tl-row">
+                    <div class="tl-time">@(e.StartedAt?.ToString("HH:mm") ?? "--")</div>
+                    <div class="tl-spine">
+                        <div class="@dot"></div>
+                        @if (!last) { <div class="tl-line"></div> }
+                    </div>
+                    <div class="tl-card">
+                        <div class="tl-title">@e.Title</div>
+                        <div class="tl-meta">
+                            <span class="@badge">@e.Status</span>
+                            @if (e.DurationMinutes > 0)
+                            {
+                                <span class="c-muted">@e.DurationMinutes min</span>
+                            }
+                            @if (e.EndedAt.HasValue)
+                            {
+                                <span style="color:var(--muted3)">→ @e.EndedAt.Value.ToString("HH:mm")</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (Model.Error is null)
+    {
+        <p class="c-muted" style="font-size:13px;padding:16px 0">No activity recorded today.</p>
+    }
+
+</div>

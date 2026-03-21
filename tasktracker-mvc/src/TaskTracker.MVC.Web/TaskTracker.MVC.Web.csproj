@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>TaskTracker.MVC.Web</RootNamespace>
+    <UserSecretsId>tasktracker-mvc-secrets</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TaskTracker.MVC.Application\TaskTracker.MVC.Application.csproj" />
+    <ProjectReference Include="..\TaskTracker.MVC.Infrastructure\TaskTracker.MVC.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

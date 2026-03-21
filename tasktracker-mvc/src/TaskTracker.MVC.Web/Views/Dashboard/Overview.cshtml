@@ -1,0 +1,98 @@
+@model OverviewViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewBag.Title      = "Overview";
+    ViewBag.ActivePage = "overview";
+    ViewBag.UserName   = Model.UserName;
+    ViewBag.UserRole   = Model.UserRole;
+    ViewBag.Initials   = Model.Initials;
+}
+
+<div class="page-body">
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <div>
+            <h1>Overview</h1>
+            <p class="topbar-sub">
+                Last refreshed: @(Model.Overview?.LastRefreshed.ToString("HH:mm:ss") ?? "—")
+            </p>
+        </div>
+        <a href="/dashboard/overview" class="btn-outline">↻ Refresh</a>
+    </div>
+
+    @if (Model.Error != null)
+    {
+        <div class="api-error">⚠ @Model.Error</div>
+    }
+
+    @if (Model.Overview is { } ov)
+    {
+        <!-- Metric Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Tasks</div>
+                <div class="metric-value">@ov.TotalTasks</div>
+            </div>
+            <div class="metric-card mc-green">
+                <div class="metric-label">Completed Today</div>
+                <div class="metric-value">@ov.CompletedToday</div>
+            </div>
+            <div class="metric-card mc-purple">
+                <div class="metric-label">In Progress</div>
+                <div class="metric-value">@ov.InProgress</div>
+            </div>
+            <div class="metric-card mc-red">
+                <div class="metric-label">Blocked</div>
+                <div class="metric-value">@ov.Blocked</div>
+            </div>
+        </div>
+
+        <!-- Sprint Progress -->
+        <div class="sprint-card">
+            <div class="sprint-row">
+                <span>Sprint progress</span>
+                <span class="sprint-pct">@ov.SprintProgress%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" style="width:@ov.SprintProgress%"></div>
+            </div>
+            <div class="sprint-row" style="margin-top:10px">
+                <span style="font-size:12px">Team velocity (7-day avg)</span>
+                <span class="sprint-vel">@ov.TeamVelocity tasks/day</span>
+            </div>
+        </div>
+    }
+
+    <!-- Team Today -->
+    <span class="section-label">Team today</span>
+
+    @if (Model.Team?.Developers is { Count: > 0 } devs)
+    {
+        <div class="dev-list">
+            @foreach (var dev in devs)
+            {
+                <a href="/dashboard/developer/@dev.DeveloperId" class="dev-row">
+                    <div class="dev-av">@dev.Initials</div>
+                    <div class="dev-info">
+                        <span class="dev-name">@dev.Name</span>
+                        <span class="dev-meta">
+                            @dev.CompletedToday done &middot;
+                            @dev.InProgress active &middot;
+                            @dev.Pending pending
+                        </span>
+                    </div>
+                    <div class="dev-right">
+                        <span class="dev-hours">@dev.TotalHoursToday h</span>
+                        <span class="dev-arrow">›</span>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else if (Model.Error is null)
+    {
+        <p class="c-muted" style="font-size:13px;padding:16px 0">No team data available.</p>
+    }
+
+</div>

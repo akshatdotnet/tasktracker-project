@@ -1,0 +1,85 @@
+@model TeamViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewBag.Title      = "Team Report";
+    ViewBag.ActivePage = "team";
+    ViewBag.UserName   = Model.UserName;
+    ViewBag.UserRole   = Model.UserRole;
+    ViewBag.Initials   = Model.Initials;
+}
+
+<div class="page-body">
+
+    <div class="topbar">
+        <div>
+            <h1>Team Report</h1>
+            <p class="topbar-sub">
+                @(Model.Report?.Date ?? DateTime.UtcNow.ToString("yyyy-MM-dd"))
+                &middot; @(Model.Report?.OverallCompletion ?? 0)% overall completion
+            </p>
+        </div>
+        <a href="/dashboard/team" class="btn-outline">↻ Refresh</a>
+    </div>
+
+    @if (Model.Error != null)
+    {
+        <div class="api-error">⚠ @Model.Error</div>
+    }
+
+    @if (Model.Report is { } r)
+    {
+        <!-- Sprint completion bar -->
+        <div class="sprint-card">
+            <div class="sprint-row">
+                <span>Sprint completion</span>
+                <span class="sprint-pct">@r.OverallCompletion%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" style="width:@r.OverallCompletion%"></div>
+            </div>
+        </div>
+
+        <!-- Team table -->
+        <div class="table-card">
+            <table class="tt-table">
+                <thead>
+                    <tr>
+                        <th>Developer</th>
+                        <th class="r">Total</th>
+                        <th class="r">Done</th>
+                        <th class="r">Active</th>
+                        <th class="r">Pending</th>
+                        <th class="r">Hours</th>
+                        <th class="r">Avg (min)</th>
+                        <th>Last Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var dev in r.Developers)
+                    {
+                        <tr>
+                            <td>
+                                <div class="dev-cell">
+                                    <div class="dev-av-sm">@dev.Initials</div>
+                                    <a href="/dashboard/developer/@dev.DeveloperId" style="color:var(--text)">
+                                        @dev.Name
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="r c-muted">@dev.TotalTasks</td>
+                            <td class="r c-green">@dev.CompletedToday</td>
+                            <td class="r c-purple">@dev.InProgress</td>
+                            <td class="r c-muted">@dev.Pending</td>
+                            <td class="r c-orange">@dev.TotalHoursToday h</td>
+                            <td class="r c-muted">@dev.AverageTaskDuration</td>
+                            <td class="c-muted c-small">
+                                @(dev.LastActivityAt?.ToString("HH:mm") ?? "—")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>

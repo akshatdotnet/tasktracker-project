@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewBag.Title ?? "TaskTracker") | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+</head>
+<body>
+<div class="shell">
+
+    @{
+        var isMock = (bool)(ViewBag.IsMock ?? false);
+        var envTagClass = isMock ? "env-tag env-tag-mock" : "env-tag env-tag-live";
+        var envTagText  = isMock ? "MOCK" : "LIVE";
+    }
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="brand-dot"></span>
+            <span class="brand-name">TaskTracker</span>
+            <span class="@envTagClass">@envTagText</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <p class="nav-label">Dashboard</p>
+
+            <a href="/dashboard/overview" class="nav-item @(ViewBag.ActivePage == "overview" ? "active" : "")">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="1" y="1" width="6" height="6" rx="1.5" opacity=".7"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1.5"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1.5"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1.5" opacity=".7"/>
+                </svg>
+                Overview
+            </a>
+
+            <a href="/dashboard/team" class="nav-item @(ViewBag.ActivePage == "team" ? "active" : "")">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <circle cx="5.5" cy="5" r="2.5" fill="currentColor"/>
+                    <circle cx="10.5" cy="5" r="2.5" fill="currentColor" opacity=".6"/>
+                    <path d="M1 13c0-2.5 2-4 4.5-4S10 10.5 10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M11 13c0-2 1.2-3.2 3-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+                </svg>
+                Team Report
+            </a>
+
+            <a href="/dashboard/velocity" class="nav-item @(ViewBag.ActivePage == "velocity" ? "active" : "")">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <polyline points="1,13 4,8 8,10 13,4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="13" cy="4" r="1.5" fill="currentColor"/>
+                </svg>
+                Velocity
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-row">
+                <div class="user-avatar">@ViewBag.Initials</div>
+                <div class="user-info">
+                    <span class="user-name">@ViewBag.UserName</span>
+                    <span class="user-role">@ViewBag.UserRole</span>
+                </div>
+            </div>
+            <form method="post" action="/logout">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-logout">Sign out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+</div>
+
+<script src="~/js/app.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,115 @@
+@model LoginViewModel
+@inject Microsoft.Extensions.Options.IOptions<TaskTracker.MVC.Infrastructure.HttpClients.ApiSettings> ApiOptions
+@{
+    ViewBag.Title = "Sign In";
+    var isMock = ApiOptions.Value.UseMockData;
+}
+
+<div class="auth-page">
+    <div class="auth-card">
+
+        <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">TaskTracker</span>
+        </div>
+
+        <h1>Sign in</h1>
+        <p class="auth-sub">Continue to your workspace</p>
+
+        @if (Model.ApiError != null)
+        {
+            <div class="api-error">
+                @Model.ApiError
+                @if (Model.IsApiDown)
+                {
+                    <br /><span style="font-size:11px;opacity:.8">Tip: Set UseMockData=true in appsettings.json to run without the API.</span>
+                }
+            </div>
+        }
+
+        <form method="post" action="/login">
+            @Html.AntiForgeryToken()
+            @if (!string.IsNullOrEmpty(ViewBag.ReturnUrl as string))
+            {
+                <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+            }
+
+            <div class="field">
+                <label for="email">Email</label>
+                <input id="email"
+                       type="email"
+                       name="Form.Email"
+                       value="@Model.Form.Email"
+                       placeholder="@(isMock ? "dev@dev.local" : "admin@tasktracker.dev")"
+                       autocomplete="email"
+                       required />
+                @if (ViewData.ModelState["Form.Email"]?.Errors.Any() == true)
+                {
+                    <span class="field-err">Enter a valid email address.</span>
+                }
+            </div>
+
+            <div class="field">
+                <label for="password">
+                    Password
+                    <a href="/forgot-password" class="field-link">Forgot password?</a>
+                </label>
+                <input id="password"
+                       type="password"
+                       name="Form.Password"
+                       placeholder="••••••••"
+                       autocomplete="current-password"
+                       required />
+                @if (ViewData.ModelState["Form.Password"]?.Errors.Any() == true)
+                {
+                    <span class="field-err">Password is required.</span>
+                }
+            </div>
+
+            <button type="submit" class="btn-primary">Sign in</button>
+        </form>
+
+        <!-- Credential quick-fill — mirrors Angular hint panel exactly -->
+        <div class="hint-panel">
+            <p class="hint-label">
+                @(isMock ? "Mock" : "API") Credentials
+                <span class="mode-badge @(isMock ? "mode-mock" : "mode-live")">
+                    @(isMock ? "MOCK MODE" : "LIVE API")
+                </span>
+            </p>
+
+            @if (isMock)
+            {
+                @foreach (var c in new[] {
+                    new { Role = "Admin",     Email = "admin@dev.local",  Pw = "Admin@1234" },
+                    new { Role = "Developer", Email = "dev@dev.local",    Pw = "Dev@12345"  },
+                    new { Role = "Viewer",    Email = "viewer@dev.local", Pw = "Viewer@123" },
+                })
+                {
+                    <div class="cred-row" onclick="fillCred('@c.Email','@c.Pw')">
+                        <span class="cred-badge">@c.Role</span>
+                        <span class="cred-email">@c.Email</span>
+                        <span class="cred-pw">@c.Pw</span>
+                    </div>
+                }
+            }
+            else
+            {
+                @foreach (var c in new[] {
+                    new { Role = "Admin",     Email = "admin@tasktracker.dev",  Pw = "Admin@1234" },
+                    new { Role = "Developer", Email = "arjun@tasktracker.dev",  Pw = "Dev@12345"  },
+                    new { Role = "Developer", Email = "priya@tasktracker.dev",  Pw = "Dev@12345"  },
+                    new { Role = "Viewer",    Email = "viewer@tasktracker.dev", Pw = "Dev@12345"  },
+                })
+                {
+                    <div class="cred-row" onclick="fillCred('@c.Email','@c.Pw')">
+                        <span class="cred-badge">@c.Role</span>
+                        <span class="cred-email">@c.Email</span>
+                        <span class="cred-pw">@c.Pw</span>
+                    </div>
+                }
+            }
+        </div>
+
+    </div>
+</div>

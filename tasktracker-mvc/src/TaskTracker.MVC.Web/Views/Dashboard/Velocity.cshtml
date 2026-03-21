@@ -1,0 +1,84 @@
+@model VelocityViewModel
+@using System.Text.Json
+@{
+    Layout = "_DashboardLayout";
+    ViewBag.Title      = "Velocity";
+    ViewBag.ActivePage = "velocity";
+    ViewBag.UserName   = Model.UserName;
+    ViewBag.UserRole   = Model.UserRole;
+    ViewBag.Initials   = Model.Initials;
+
+    // Serialize chart data for JS rendering
+    var taskPoints  = Model.Points.Select(p => new { value = p.TasksCompleted, label = p.Date[5..] }).ToList();
+    var hoursPoints = Model.Points.Select(p => new { value = p.HoursLogged,    label = p.Date[5..] }).ToList();
+    var taskJson    = JsonSerializer.Serialize(taskPoints);
+    var hoursJson   = JsonSerializer.Serialize(hoursPoints);
+}
+
+<div class="page-body">
+
+    <div class="topbar">
+        <div>
+            <h1>Velocity &amp; Status</h1>
+            <p class="topbar-sub">Task completion trend and current sprint status breakdown</p>
+        </div>
+        <div class="controls">
+            <select id="vel-days" class="sel-control">
+                <option value="7"  @@(Model.Days == 7  ? "selected" : "")>Last 7 days</option>
+                <option value="14" @@(Model.Days == 14 ? "selected" : "")>Last 14 days</option>
+                <option value="30" @@(Model.Days == 30 ? "selected" : "")>Last 30 days</option>
+            </select>
+            <a href="/dashboard/velocity?days=@Model.Days" class="btn-outline">↻</a>
+        </div>
+    </div>
+
+    @if (Model.Error != null)
+    {
+        <div class="api-error">⚠ @Model.Error</div>
+    }
+
+    @if (Model.Status is { } s)
+    {
+        <div class="status-grid">
+            <div class="metric-card mc-teal">
+                <div class="metric-label">Completed</div>
+                <div class="metric-value">@s.Completed</div>
+            </div>
+            <div class="metric-card mc-purple">
+                <div class="metric-label">In Progress</div>
+                <div class="metric-value">@s.InProgress</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Pending</div>
+                <div class="metric-value c-muted">@s.Pending</div>
+            </div>
+            <div class="metric-card mc-red">
+                <div class="metric-label">Blocked</div>
+                <div class="metric-value">@s.Blocked</div>
+            </div>
+        </div>
+    }
+
+    <!-- Tasks completed chart -->
+    <div class="chart-card">
+        <p class="chart-title">Tasks completed per day</p>
+        <div id="chart-tasks" class="chart-bars" data-points="@taskJson"></div>
+    </div>
+
+    <!-- Hours logged chart -->
+    <div class="chart-card">
+        <p class="chart-title">Hours logged per day</p>
+        <div id="chart-hours" class="chart-bars" data-points="@hoursJson"></div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+    // Override chart IDs so renderChart picks them up correctly
+    document.addEventListener('DOMContentLoaded', function () {
+        renderChart('chart-tasks', 'data-points', 'bar-purple');
+        renderChart('chart-hours', 'data-points', 'bar-teal');
+    });
+</script>
+}
