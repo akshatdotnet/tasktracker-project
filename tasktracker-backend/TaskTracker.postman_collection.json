@@ -1,0 +1,247 @@
+{
+  "info": {
+    "name": "TaskTracker API",
+    "_postman_id": "tasktracker-collection-v1",
+    "description": "Complete collection for TaskTracker .NET Core 8 RESTful API.\nBase URL: https://localhost:5001/api/v1\n\nWorkflow:\n1. Run 'Login' → copy accessToken to {{token}} variable\n2. All authenticated requests use Bearer {{token}} automatically",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",   "value": "https://localhost:5001/api/v1" },
+    { "key": "token",      "value": "" },
+    { "key": "refresh",    "value": "" },
+    { "key": "devId",      "value": "" },
+    { "key": "resetToken", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "https://localhost:5001/health",
+            "description": "Verify API is running. Returns 200 with status info."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('token',   body.accessToken);",
+                  "  pm.collectionVariables.set('refresh', body.refreshToken);",
+                  "  pm.test('Login successful', () => pm.response.to.have.status(200));",
+                  "  pm.test('Has accessToken',  () => pm.expect(body.accessToken).to.be.a('string'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@tasktracker.dev\",\n  \"password\": \"Admin@1234\"\n}"
+            },
+            "url": "{{base_url}}/auth/login",
+            "description": "Authenticate and store tokens as collection variables."
+          }
+        },
+        {
+          "name": "Login (Developer - Arjun)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('token',   body.accessToken);",
+                  "  pm.collectionVariables.set('refresh', body.refreshToken);",
+                  "  pm.collectionVariables.set('devId',   body.userId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"arjun@tasktracker.dev\",\n  \"password\": \"Dev@12345\"\n}"
+            },
+            "url": "{{base_url}}/auth/login"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('token',   body.accessToken);",
+                  "  pm.collectionVariables.set('refresh', body.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/refresh-token"
+          }
+        },
+        {
+          "name": "Get Current User (me)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/me",
+            "description": "Returns the profile of the currently authenticated user."
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"arjun@tasktracker.dev\"\n}"
+            },
+            "url": "{{base_url}}/auth/forgot-password",
+            "description": "Always returns 200. Check console logs for the reset link (dev mode)."
+          }
+        },
+        {
+          "name": "Validate Reset Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/validate-token"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"NewPass@1234\",\n  \"confirmPassword\": \"NewPass@1234\"\n}"
+            },
+            "url": "{{base_url}}/auth/reset-password"
+          }
+        },
+        {
+          "name": "Register User (Admin only)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newdev@tasktracker.dev\",\n  \"password\": \"Dev@12345\",\n  \"confirmPassword\": \"Dev@12345\",\n  \"firstName\": \"New\",\n  \"lastName\": \"Developer\",\n  \"role\": \"Developer\"\n}"
+            },
+            "url": "{{base_url}}/auth/register",
+            "description": "Requires Admin JWT token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Overview",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/dashboard/overview",
+            "description": "Full dashboard snapshot. Cached 2 min server-side."
+          }
+        },
+        {
+          "name": "Team Report",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/dashboard/team"
+          }
+        },
+        {
+          "name": "Status Breakdown",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/dashboard/tasks/by-status"
+          }
+        },
+        {
+          "name": "Velocity - 7 days (default)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dashboard/velocity?days=7",
+              "query": [{ "key": "days", "value": "7" }]
+            }
+          }
+        },
+        {
+          "name": "Velocity - 30 days",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dashboard/velocity?days=30",
+              "query": [{ "key": "days", "value": "30" }]
+            }
+          }
+        },
+        {
+          "name": "Developer Summary",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/dashboard/developer/{{devId}}",
+            "description": "Set devId variable first by running 'Login (Developer - Arjun)'."
+          }
+        },
+        {
+          "name": "Developer Today Timeline",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/dashboard/developer/{{devId}}/today"
+          }
+        }
+      ]
+    }
+  ]
+}

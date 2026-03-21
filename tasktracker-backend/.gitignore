@@ -1,0 +1,52 @@
+## .NET / Visual Studio
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.userprefs
+*.userosscache
+*.sln.docstates
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!packages/repositories.config
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+## SQL Server
+*.mdf
+*.ldf
+*.ndf
+
+## User secrets
+**/secrets.json
+
+## Environment
+.env
+.env.local
+.env.*.local
+
+## Logs
+logs/
+*.log
+
+## Temp
+tmp/
+temp/
