@@ -23,10 +23,15 @@
             <p class="topbar-sub">Task completion trend and current sprint status breakdown</p>
         </div>
         <div class="controls">
-            <select id="vel-days" class="sel-control">
+            @* <select id="vel-days" class="sel-control">
                 <option value="7"  @@(Model.Days == 7  ? "selected" : "")>Last 7 days</option>
                 <option value="14" @@(Model.Days == 14 ? "selected" : "")>Last 14 days</option>
                 <option value="30" @@(Model.Days == 30 ? "selected" : "")>Last 30 days</option>
+            </select> *@
+            <select id="vel-days" class="sel-control">
+                <option value="7" selected="@(Model.Days == 7)">Last 7 days</option>
+                <option value="14" selected="@(Model.Days == 14)">Last 14 days</option>
+                <option value="30" selected="@(Model.Days == 30)">Last 30 days</option>
             </select>
             <a href="/dashboard/velocity?days=@Model.Days" class="btn-outline">↻</a>
         </div>
